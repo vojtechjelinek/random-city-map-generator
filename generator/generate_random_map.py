@@ -21,6 +21,11 @@ def get_random_edge_coords(city_map):
 def coast_is_straight(prev_moves, move_direction):
     return all(prev_moves[i] == move_direction for i in range(-1, -4, -1))
 
+def create_possible_moves(move_direction, sea_direction):
+    curvature = random.randrange(1, 4)
+    return ((move_direction, move_direction, move_direction, move_direction) +
+            (sea_direction,) * curvature + (-sea_direction,) * (4 - curvature))
+
 def generate_coast(city_map):
     current_coords = get_random_edge_coords(city_map)
 
@@ -37,8 +42,7 @@ def generate_coast(city_map):
             sea_direction = Coords(Coords.MOVE_NORTH)
         move_direction = Coords(Coords.MOVE_EAST)
 
-    possible_moves = (move_direction, move_direction, move_direction,
-                      move_direction, -sea_direction, sea_direction)
+    possible_moves = create_possible_moves(move_direction, sea_direction)
 
     prev_moves = [sea_direction, sea_direction, sea_direction]
     while True:
@@ -111,7 +115,7 @@ def generate_street_grid(city_map):
 
 def create_building(city_map, coords, street_directions):
     building_points = []
-    building_size = (random.randrange(3, 5), random.randrange(3, 5))
+    building_size = (random.randrange(3, 6), random.randrange(3, 6))
     for i in range(building_size[0]):
         for j in range(building_size[1]):
             building_points.append(
@@ -152,18 +156,18 @@ def generate_buildings(city_map):
         for j in range(city_map.size[1]):
             generate_normal_building(city_map, Coords(i, j))
 
-def show_image(city_map):
+def save_image(city_map, filename):
     img = Image.new('RGB', (city_map.size[1], city_map.size[0]))
     img.putdata(city_map.get_rgb_map())
-    img = img.resize((3 * city_map.size[1], 3 * city_map.size[0]))
-    img.show()
+    img = img.resize((2 * city_map.size[1], 2 * city_map.size[0]))
+    img.save(filename)
 
 def generate(width, heigth):
     city_map = Map(heigth, width)
     generate_coast(city_map)
     generate_street_grid(city_map)
     generate_buildings(city_map)
-    show_image(city_map)
+    save_image(city_map, "map.png")
 
 if __name__ == "__main__":
-    generate(200, 100)
+    generate(400, 400)
